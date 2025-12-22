@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.example.tamaapi.common.auth.CustomPrincipal;
-import org.example.tamaapi.common.auth.CustomUserDetails;
 import org.example.tamaapi.common.exception.UnauthorizedException;
 import org.example.tamaapi.feignClient.member.Authority;
 import org.example.tamaapi.feignClient.member.MemberFeignClient;
@@ -36,20 +35,16 @@ public class PreAuthenticationAspect {
     public void setAuthentication() {
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomPrincipal customPrincipal = null;
-        if (authentication.getPrincipal() instanceof CustomPrincipal)
-            customPrincipal = (CustomPrincipal) authentication.getPrincipal();
+        CustomPrincipal customPrincipal = (CustomPrincipal) authentication.getPrincipal();
 
         //헤더에 토큰 첨부안하면 null
         if (customPrincipal == null)
             throw new UnauthorizedException(NOT_AUTHENTICATED);
 
-        Long memberId = customPrincipal.getMemberId();
         Authority authority = memberFeignClient.findAuthority(customPrincipal.getBearerJwt());
-
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(authority.getAuthority()));
         Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
-                new CustomUserDetails(memberId, authorities),
+                null,
                 null,  // password는 필요하지 않아서 null 지정
                 authorities
         );

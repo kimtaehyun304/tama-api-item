@@ -26,8 +26,8 @@ public class ReviewApiController {
 
     @PostMapping("/api/reviews")
     public ResponseEntity<SimpleResponse> saveReview(@Valid @RequestBody SaveReviewRequest saveReviewRequest, @AuthenticationPrincipal CustomPrincipal principal) {
-        Long memberId = orderFeignClient.getOrderItemMember(saveReviewRequest.getOrderItemId(), principal.getBearerJwt());
-        if(!Objects.equals(memberId, principal.getMemberId()))
+        Long orderMemberId = orderFeignClient.getOrderItemMember(saveReviewRequest.getOrderItemId(), principal.getBearerJwt());
+        if(!Objects.equals(orderMemberId, principal.getMemberId()))
             throw new IllegalArgumentException("주문자가 아닙니다.");
 
         /* api 호출 줄이기 위해 주석 처리
