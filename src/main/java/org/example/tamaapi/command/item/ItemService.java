@@ -152,6 +152,7 @@ public class ItemService {
     }
 
     public void increaseStocks(List<ItemOrderCountRequest> requests){
+
         for (ItemOrderCountRequest request : requests) {
             increaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }

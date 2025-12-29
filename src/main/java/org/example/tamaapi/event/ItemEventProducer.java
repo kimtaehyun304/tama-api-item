@@ -13,12 +13,6 @@ public class ItemEventProducer {
     private final KafkaTemplate<String, ItemCreatedEvent> kafkaTemplate;
     private final String ITEM_TOPIC = "item_topic";
 
-    /*
-    public void produceOrderCreatedEvent(Long orderId, OrderStatus orderStatus){
-        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(orderId, orderStatus);
-        kafkaTemplate.send(ORDER_TOPIC, orderCreatedEvent);
-    }
-     */
 
     @Async
     public void produceAsyncItemCreatedEvent(Long itemId){
