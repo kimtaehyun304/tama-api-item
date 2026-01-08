@@ -27,15 +27,11 @@ public class FeignApiController {
 
     private final ItemQueryService itemQueryService;
     private final ItemService itemService;
-    private final ItemQueryRepository itemQueryRepository;
-    private final ColorItemSizeStockQueryRepository colorItemSizeStockQueryRepository;
-    private final ColorItemImageQueryRepository colorItemImageQueryRepository;
 
-    //-----주문 msa-----
+    //-----from 주문 msa-----
     @GetMapping("/api/items/totalPrice")
     public int getTotalPrice(@RequestBody List<ItemOrderCountRequest> requests) {
         return itemQueryService.getItemsTotalPrice(requests);
-        //return itemQueryService.getItemsTotalPrice(wrapper.getItemOrderCountRequests());
     }
 
     //주문 아이템 생성시 필요
@@ -54,7 +50,7 @@ public class FeignApiController {
         itemService.decreaseStocks(requests);
     }
 
-    //-----읽기 msa-----
+    //-----from 읽기 msa-----
     @GetMapping("/api/items/{itemId}")
     public ItemSyncResponse getItem(@PathVariable Long itemId) {
         return itemQueryService.createItemSyncResponse(itemId);

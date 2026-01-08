@@ -1,4 +1,4 @@
-package org.example.tamaapi.dto.responseDto.review;
+package org.example.tamaapi.dto.responseDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

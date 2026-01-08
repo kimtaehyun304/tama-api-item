@@ -129,13 +129,11 @@ public class ItemService {
             throw new NotEnoughStockException();
     }
 
-
     public void decreaseStocks(List<ItemOrderCountRequest> requests){
         for (ItemOrderCountRequest request : requests) {
             decreaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }
     }
-
 
     public void increaseStock(Long colorItemSizeStockId, int quantity){
         //동시에 요청 오면, UPDATE 전에 재고 조회하는 게 의미가 없음
@@ -143,7 +141,7 @@ public class ItemService {
         //그래서 if(db.stock - quantity < 0) throw 로직 제거
 
         //변경 감지는 갱실 분실 문제 발생 -> 직접 update로 배타적 락으로 예방
-        int updated = em.createQuery("update ColorItemSizeStock c set c.stock = c.stock + :quantity " +
+        em.createQuery("update ColorItemSizeStock c set c.stock = c.stock + :quantity " +
                         "where c.id = :id and c.stock >= :quantity")
                 .setParameter("quantity", quantity)
                 .setParameter("id", colorItemSizeStockId)
@@ -152,11 +150,9 @@ public class ItemService {
     }
 
     public void increaseStocks(List<ItemOrderCountRequest> requests){
-
         for (ItemOrderCountRequest request : requests) {
             increaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }
     }
-
 
 }

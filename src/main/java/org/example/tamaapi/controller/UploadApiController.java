@@ -6,7 +6,7 @@ import org.example.tamaapi.common.aspect.PreAuthentication;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.item.save.*;
-import org.example.tamaapi.dto.responseDto.review.SimpleResponse;
+import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.query.item.ColorItemQueryRepository;
 import org.example.tamaapi.command.item.ItemService;
 import org.example.tamaapi.command.S3Service;

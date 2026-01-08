@@ -1,5 +1,6 @@
 package org.example.tamaapi.feignClient.order;
 
+import org.example.tamaapi.common.exception.feign.OrderFeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
-@FeignClient(name = "order-service", url = "http://localhost:5001")
+@FeignClient(name = "order-service", url = "http://localhost:5001"
+        , configuration = OrderFeignClientConfig.class
+        , fallbackFactory = OrderFallbackFactory.class)
 public interface OrderFeignClient {
 
     @GetMapping("/api/orders/{orderId}/item")

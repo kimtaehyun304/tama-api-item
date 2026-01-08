@@ -7,7 +7,7 @@ import org.example.tamaapi.common.auth.CustomPrincipal;
 import org.example.tamaapi.domain.item.Review;
 import org.example.tamaapi.dto.requestDto.item.save.SaveReviewRequest;
 import org.example.tamaapi.command.item.ReviewRepository;
-import org.example.tamaapi.dto.responseDto.review.SimpleResponse;
+import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.feignClient.order.OrderFeignClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -2,7 +2,7 @@ package org.example.tamaapi.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.example.tamaapi.dto.responseDto.review.SimpleResponse;
+import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +22,11 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @Slf4j
 //필터에서 발생한 예외는 못잡음
 public class CommonExceptionHandler {
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Throwable> void throwOriginalException(Throwable t) throws T {
+        throw (T) t;
+    }
 
     //런타임 에러 포함한 기타 예외
     @ExceptionHandler(Exception.class)
@@ -91,7 +96,7 @@ public class CommonExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("저장 실패"));
     }
 
-
+    //필터에서 예외 발생해서 안 잡힙
     @ExceptionHandler(MyExpiredJwtException.class)
     public ResponseEntity<SimpleResponse> MyExpiredJwtException(MyExpiredJwtException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
@@ -116,5 +121,6 @@ public class CommonExceptionHandler {
     public ResponseEntity<SimpleResponse> OrderCancelException(OrderFailException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
     }
+
 
 }
