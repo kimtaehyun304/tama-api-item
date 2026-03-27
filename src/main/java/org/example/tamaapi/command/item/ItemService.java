@@ -1,7 +1,10 @@
 package org.example.tamaapi.command.item;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.domain.DecreaseStockLog;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.common.exception.NotEnoughStockException;
 import org.example.tamaapi.dto.feign.requestDto.ItemOrderCountRequest;
@@ -13,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,11 +26,12 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-
     private final ColorItemQueryRepository colorItemQueryRepository;
+    private final StockLogRepository stockLogRepository;
 
     private final JdbcTemplate jdbcTemplate;
     private final EntityManager em;
+    private final ObjectMapper objectMapper;
 
     public List<Long> saveItem(Item item, List<ColorItem> colorItems, List<ColorItemSizeStock> colorItemSizeStocks) {
         itemRepository.save(item);
@@ -58,6 +60,8 @@ public class ItemService {
         }
 
         saveColorItemSizeStocks(colorItemSizeStocks);
+
+
         return colorItems.stream().map(ColorItem::getId).toList();
     }
 
@@ -129,11 +133,15 @@ public class ItemService {
             throw new NotEnoughStockException();
     }
 
-    public void decreaseStocks(List<ItemOrderCountRequest> requests){
+    //+로그 테이블 저장
+    public void decreaseStocks(List<ItemOrderCountRequest> requests, String paymentId){
         for (ItemOrderCountRequest request : requests) {
             decreaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }
+        JsonNode payload = objectMapper.valueToTree(requests);
+        stockLogRepository.save(new DecreaseStockLog(paymentId, payload));
     }
+
 
     public void increaseStock(Long colorItemSizeStockId, int quantity){
         //동시에 요청 오면, UPDATE 전에 재고 조회하는 게 의미가 없음
@@ -141,11 +149,14 @@ public class ItemService {
         //그래서 if(db.stock - quantity < 0) throw 로직 제거
 
         //변경 감지는 갱실 분실 문제 발생 -> 직접 update로 배타적 락으로 예방
-        em.createQuery("update ColorItemSizeStock c set c.stock = c.stock + :quantity " +
+        int updatedRow = em.createQuery("update ColorItemSizeStock c set c.stock = c.stock + :quantity " +
                         "where c.id = :id and c.stock >= :quantity")
                 .setParameter("quantity", quantity)
                 .setParameter("id", colorItemSizeStockId)
                 .executeUpdate();
+
+        if(updatedRow == 0)
+            throw new IllegalArgumentException("재고 롤백 실패");
 
     }
 
@@ -153,6 +164,15 @@ public class ItemService {
         for (ItemOrderCountRequest request : requests) {
             increaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }
+    }
+
+    public void deleteDecreaseStockLog(String paymentId){
+        int deletedRow = em.createQuery("delete DecreaseStockLog d where d.paymentId = :paymentId")
+                .setParameter("paymentId", paymentId)
+                .executeUpdate();
+
+        if(deletedRow == 0)
+            throw new IllegalArgumentException("로그 삭제 실패");
     }
 
 }

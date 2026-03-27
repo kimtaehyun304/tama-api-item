@@ -1,4 +1,19 @@
 package org.example.tamaapi.event;
 
-public record ItemCreatedEvent(Long itemId) {
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Getter
+public class ItemCreatedEvent {
+
+    private String eventType = "ITEM_CREATED";
+    private Long itemId;
+
+    public ItemCreatedEvent(Long itemId) {
+        this.itemId = itemId;
+    }
 }

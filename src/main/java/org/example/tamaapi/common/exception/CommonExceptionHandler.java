@@ -2,6 +2,7 @@ package org.example.tamaapi.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.example.tamaapi.dto.responseDto.SimpleFeignResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -113,8 +114,8 @@ public class CommonExceptionHandler {
     }
 
     @ExceptionHandler(NotEnoughStockException.class)
-    public ResponseEntity<SimpleResponse> NotEnoughStockException(NotEnoughStockException exception) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new SimpleResponse(exception.getMessage()));
+    public ResponseEntity<SimpleFeignResponse> NotEnoughStockException(NotEnoughStockException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleFeignResponse(exception.getCode() ,exception.getMessage()));
     }
 
     @ExceptionHandler(OrderFailException.class)
