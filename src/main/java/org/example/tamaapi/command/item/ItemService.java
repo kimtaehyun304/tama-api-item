@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.DecreaseStockLog;
+import org.example.tamaapi.domain.StockLogStatus;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.common.exception.NotEnoughStockException;
 import org.example.tamaapi.dto.feign.requestDto.ItemOrderCountRequest;
@@ -27,7 +28,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ColorItemQueryRepository colorItemQueryRepository;
-    private final StockLogRepository stockLogRepository;
+    private final DecreaseStockLogRepository decreaseStockLogRepository;
 
     private final JdbcTemplate jdbcTemplate;
     private final EntityManager em;
@@ -139,7 +140,7 @@ public class ItemService {
             decreaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }
         JsonNode payload = objectMapper.valueToTree(requests);
-        stockLogRepository.save(new DecreaseStockLog(paymentId, payload));
+        decreaseStockLogRepository.save(new DecreaseStockLog(paymentId, payload));
     }
 
 
@@ -166,6 +167,15 @@ public class ItemService {
         }
     }
 
+    /*
+    public void updateLogStatusToRollbackInId(List<Long> logIds) {
+        int count = em.createQuery("update DecreaseStockLog d set d.status = :ROLLBACK, d.updatedAt = now() where d.id in :logIds")
+                .setParameter("ROLLBACK", StockLogStatus.ROLLBACK)
+                .setParameter("logIds", logIds)
+                .executeUpdate();
+    }
+    */
+
     public void deleteDecreaseStockLog(String paymentId){
         int deletedRow = em.createQuery("delete DecreaseStockLog d where d.paymentId = :paymentId")
                 .setParameter("paymentId", paymentId)
@@ -173,6 +183,26 @@ public class ItemService {
 
         if(deletedRow == 0)
             throw new IllegalArgumentException("로그 삭제 실패");
+    }
+
+    public void deleteDecreaseStockLogInPaymentIds(List<String> paymentIds){
+        //주문 없으면 비었을수도 있음
+        if (paymentIds.isEmpty())
+            return;
+
+        int deletedRow = em.createQuery("delete DecreaseStockLog d where d.paymentId in :paymentIds")
+                .setParameter("paymentIds", paymentIds)
+                .executeUpdate();
+
+        if(deletedRow == 0)
+            throw new IllegalArgumentException("로그 삭제 실패");
+    }
+
+
+    //트랜잭션 묶으려고 합침
+    public void increaseStockAndDeleteLog(List<ItemOrderCountRequest> requests, String paymentId){
+        increaseStocks(requests);
+        deleteDecreaseStockLog(paymentId );
     }
 
 }

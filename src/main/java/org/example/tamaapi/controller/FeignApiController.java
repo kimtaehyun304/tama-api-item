@@ -3,25 +3,12 @@ package org.example.tamaapi.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.command.item.ItemService;
 import org.example.tamaapi.common.aspect.InternalOnly;
-import org.example.tamaapi.common.exception.NotEnoughStockException;
-import org.example.tamaapi.common.util.ErrorMessageUtil;
-import org.example.tamaapi.domain.DecreaseStockLog;
-import org.example.tamaapi.domain.item.ColorItem;
-import org.example.tamaapi.domain.item.ColorItemImage;
-import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.example.tamaapi.domain.item.Item;
 import org.example.tamaapi.dto.feign.requestDto.ItemOrderCountRequest;
-import org.example.tamaapi.dto.feign.requestDto.ItemOrderCountRequestWrapper;
 import org.example.tamaapi.dto.feign.responseDto.*;
-import org.example.tamaapi.query.DecreaseStockLogRepository;
-import org.example.tamaapi.query.item.ColorItemImageQueryRepository;
-import org.example.tamaapi.query.item.ColorItemSizeStockQueryRepository;
-import org.example.tamaapi.query.item.ItemQueryRepository;
+import org.example.tamaapi.query.DecreaseStockLogQueryRepository;
 import org.example.tamaapi.query.item.service.ItemQueryService;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,7 +18,7 @@ public class FeignApiController {
 
     private final ItemQueryService itemQueryService;
     private final ItemService itemService;
-    private final DecreaseStockLogRepository decreaseStockLogRepository;
+    private final DecreaseStockLogQueryRepository decreaseStockLogQueryRepository;
 
     //-----from 주문 msa-----
     @GetMapping("/api/items/totalPrice")
@@ -61,14 +48,24 @@ public class FeignApiController {
         return itemQueryService.createItemSyncResponse(itemId);
     }
 
-    @GetMapping("/api/items/stock/decrease/log")
+    @GetMapping("/api/items/stock/decrease/log/exist")
     boolean existDecreaseStockLog(@RequestParam String paymentId){
-        return decreaseStockLogRepository.existsByPaymentId(paymentId);
+        return decreaseStockLogQueryRepository.existsByPaymentId(paymentId);
     }
+
+    /*
+    @GetMapping("/api/items/stock/decrease/log/recent")
+    List<DecreaseStockLog> findRecentDecreaseStockLogs(int hours){
+        LocalDateTime localDateTime = LocalDateTime.now().minusHours(hours);
+        return decreaseStockLogRepository.findByCreatedAtAfter(localDateTime);
+    }
+    */
 
     @DeleteMapping("/api/items/stock/decrease/log")
     void deleteDecreaseStockLog(@RequestParam String paymentId){
-         itemService.deleteDecreaseStockLog(paymentId);
+        itemService.deleteDecreaseStockLog(paymentId);
     }
+
+
 
 }

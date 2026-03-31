@@ -5,6 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -18,5 +19,8 @@ public interface OrderFeignClient {
 
     @GetMapping("/api/ordersItem/{orderItemId}/member")
     Long getOrderItemMember(@PathVariable Long orderItemId, @RequestHeader("Authorization") String jwt);
+
+    @GetMapping("/api/orders/payment-ids/existing")
+    List<String> findExistingPaymentIds(@RequestParam List<String> paymentIds);
 
 }

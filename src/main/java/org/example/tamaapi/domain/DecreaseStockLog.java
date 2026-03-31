@@ -28,8 +28,12 @@ public class DecreaseStockLog extends BaseEntity {
     @Column(columnDefinition = "json")
     private JsonNode payload;
 
+    //역할 다하면 삭제하는 방식이라 안 씀
+    //private StockLogStatus status;
+
     public DecreaseStockLog(String paymentId, JsonNode payload) {
         this.paymentId = paymentId;
         this.payload = payload;
+        //this.status = StockLogStatus.DECREASED;
     }
 }
