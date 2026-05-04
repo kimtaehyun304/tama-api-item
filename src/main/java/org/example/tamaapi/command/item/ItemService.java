@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.DecreaseStockLog;
-import org.example.tamaapi.domain.StockLogStatus;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.common.exception.NotEnoughStockException;
 import org.example.tamaapi.dto.feign.requestDto.ItemOrderCountRequest;

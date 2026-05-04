@@ -1,7 +1,6 @@
 package org.example.tamaapi.query;
 
 import org.example.tamaapi.domain.DecreaseStockLog;
-import org.example.tamaapi.domain.StockLogStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 

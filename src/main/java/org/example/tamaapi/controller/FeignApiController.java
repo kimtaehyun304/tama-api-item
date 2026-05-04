@@ -3,6 +3,7 @@ package org.example.tamaapi.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.command.item.ItemService;
 import org.example.tamaapi.common.aspect.InternalOnly;
+import org.example.tamaapi.common.exception.NotEnoughStockException;
 import org.example.tamaapi.dto.feign.requestDto.ItemOrderCountRequest;
 import org.example.tamaapi.dto.feign.responseDto.*;
 import org.example.tamaapi.query.DecreaseStockLogQueryRepository;
@@ -10,6 +11,7 @@ import org.example.tamaapi.query.item.service.ItemQueryService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class FeignApiController {
     }
 
     @PutMapping("/api/items/stocks/decrease")
-    public void decreaseStocks(@RequestBody List<ItemOrderCountRequest> requests, @RequestParam String uuid) {
+    public void decreaseStocks(@RequestBody List<ItemOrderCountRequest> requests, @RequestParam String uuid) throws TimeoutException, InterruptedException {
         itemService.decreaseStocks(requests, uuid);
     }
 
@@ -65,7 +67,5 @@ public class FeignApiController {
     void deleteDecreaseStockLog(@RequestParam String paymentId){
         itemService.deleteDecreaseStockLog(paymentId);
     }
-
-
 
 }

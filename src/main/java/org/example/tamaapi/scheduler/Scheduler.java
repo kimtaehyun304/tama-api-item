@@ -32,10 +32,13 @@ public class Scheduler {
 
     //역할
     //1. 재고 차감됐는데, 주문 저장전에 서버 down돼서 재고 롤백 안 된거 롤백
-    //2. 주문이 완료된 재고 차감 로그 삭제 (의도한 케이스)
+    //2. 주문이 완료된 재고 차감 로그 삭제 (의도한대로 및 정상적으로 끝난 케이스)
 
     //1시간 주기가 적당한듯 (장애는 흔하지 않으니까)
     //fixedDelay는 앱 시작시에 바로 실행
+    //kafka ui에서 item-dlt의 재고 롤백 이벤트 수동으로 발행 안해도 됨
+    //이 스케줄러가 알아서 롤백하니까
+    //kafka ui는 dlt 모니터링 용으로만 쓰면 될듯
     @Scheduled(fixedDelay = 1000*60*60, zone = "Asia/Seoul")
     public void checkAndRollbackStock(){
         //3시간동안 상품 서버 down 될 가능성 고려 (더 길게 장애나는건 수동으로 처리)
@@ -67,8 +70,9 @@ public class Scheduler {
         itemService.deleteDecreaseStockLogInPaymentIds(orderLogPaymentIds);
 
         //재고 롤백후 삭제할 로그
+        //루프 돌려서 row 마다 increase 실패하면 delete도 실패하게 하려고
         for (DecreaseStockLog deleteLog : deleteLogs) {
-            //convertValue 루프 돌려서 row 마다 increase 실패하면 delete도 실패하게 하려고
+            //convertValue 평탄화하면 increase, delete 못 묶어서 이렇게 함
             List<ItemOrderCountRequest> requests = objectMapper.convertValue(deleteLog.getPayload(), new TypeReference<>() {});
             itemService.increaseStockAndDeleteLog(requests, deleteLog.getPaymentId());
         }
