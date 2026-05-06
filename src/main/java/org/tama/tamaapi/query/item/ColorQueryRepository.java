@@ -1,0 +1,21 @@
+package org.tama.tamaapi.query.item;
+
+import org.tama.tamaapi.domain.item.Color;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Transactional(readOnly = true)
+public interface ColorQueryRepository extends JpaRepository<Color, Long> {
+
+    //자식이 없는 것도 가져와야함 -> left join
+    @Query("select c from Color c left join fetch c.children where c.id in :colorIds")
+    List<Color> findWithChildrenByIdIn(List<Long> colorIds);
+
+    @Query("select c from Color c left join fetch c.children where c.parent is null")
+    List<Color> findAllWithChildrenByParentIsNull();
+
+    List<Color> findAllByParentIsNull();
+}

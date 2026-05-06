@@ -1,0 +1,27 @@
+package org.tama.tamaapi.feignClient.order;
+
+
+import java.util.List;
+
+import static org.tama.tamaapi.exception.CommonExceptionHandler.throwOriginalException;
+
+public class OrderFallback implements OrderFeignClient {
+
+    private final Throwable cause;
+
+    public OrderFallback(Throwable cause) {
+        this.cause = cause;
+    }
+
+    @Override
+    public Long getOrderItemMember(Long orderItemId) {
+        throwOriginalException(cause);
+        return null;
+    }
+
+    @Override
+    public List<String> findExistingPaymentIds(List<String> paymentIds) {
+        throwOriginalException(cause);
+        return null;
+    }
+}
