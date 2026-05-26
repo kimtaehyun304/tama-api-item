@@ -16,6 +16,7 @@ import java.util.List;
 //카테고리 아이템은 itemApi
 public class CategoryApiController {
 
+
     private final CategoryQueryRepository categoryQueryRepository;
 
     @GetMapping("/api/category")
