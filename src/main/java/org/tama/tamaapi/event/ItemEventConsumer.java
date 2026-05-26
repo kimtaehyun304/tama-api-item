@@ -1,6 +1,9 @@
 package org.tama.tamaapi.event;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.messaging.handler.annotation.Header;
 import org.tama.tamaapi.command.item.ItemService;
 import org.tama.tamaapi.query.DecreaseStockLogQueryRepository;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -8,6 +11,8 @@ import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
+
+import java.util.Enumeration;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +27,7 @@ public class ItemEventConsumer {
             backoff = @Backoff(delay = 3000, multiplier = 2)
     )
     @KafkaListener(topics = ITEM_TOPIC, groupId = "item_consumer_group")
-    public void consumeIncreaseStockEvent(IncreaseStockEvent event, Acknowledgment ack) {
+    public void consumeIncreaseStockEvent(IncreaseStockEvent event, Acknowledgment ack, ConsumerRecord<String, IncreaseStockEvent> record) {
         //재고 차감 → 쿠폰 적용 → 주문 저장 순이라, order 저장 전이라 order 조회 불가하여 zero payload 불가
 
         //재고 차감안됐는데 타임아웃만 난 경우도 있어서 체크헤야함

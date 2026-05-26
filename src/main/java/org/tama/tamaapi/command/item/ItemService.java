@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.tama.tamaapi.domain.DecreaseStockLog;
 import org.tama.tamaapi.domain.item.ColorItem;
 import org.tama.tamaapi.domain.item.Item;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -141,6 +143,7 @@ public class ItemService {
         for (ItemOrderCountRequest request : requests) {
             decreaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }
+        log.info("재고 차감 완료");
         JsonNode payload = objectMapper.valueToTree(requests);
         decreaseStockLogRepository.save(new DecreaseStockLog(paymentId, payload));
     }
@@ -160,13 +163,13 @@ public class ItemService {
 
         if(updatedRow == 0)
             throw new IllegalArgumentException("재고 롤백 실패");
-
     }
 
     public void increaseStocks(List<ItemOrderCountRequest> requests){
         for (ItemOrderCountRequest request : requests) {
             increaseStock(request.getColorItemSizeStockId(), request.getOrderCount());
         }
+        //롤백 실패한 이벤트는 kafka ui dlt에서 확인 가능
     }
 
     /*
@@ -204,7 +207,8 @@ public class ItemService {
     //트랜잭션 묶으려고 합침
     public void increaseStockAndDeleteLog(List<ItemOrderCountRequest> requests, String paymentId){
         increaseStocks(requests);
-        deleteDecreaseStockLog(paymentId );
+        deleteDecreaseStockLog(paymentId);
+        log.info("재고 롤백 완료. paymentId = {}", paymentId);
     }
 
 }
