@@ -33,7 +33,7 @@ public class DataBaseConfig {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
-    @Bean
+    //@Bean
     public List<DataSource> slaveDataSources() {
         List<DataSource> sources = new ArrayList<>();
 
