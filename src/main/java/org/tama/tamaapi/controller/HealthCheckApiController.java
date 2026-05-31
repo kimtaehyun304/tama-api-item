@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class HealthCheckApiController {
 
+
     @GetMapping("/api/item/health-check/ok")
     public String healthOk() {
         log.info("ok");
