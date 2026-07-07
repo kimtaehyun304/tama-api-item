@@ -30,20 +30,16 @@ public class Scheduler {
     private final ObjectMapper objectMapper;
 
     //역할
-    //1. 재고 차감됐는데, 주문 저장전에 서버 down돼서 재고 롤백 안 된거 롤백
+    //1. 주문 실패하여 자동으로 재고 롤백해야하는데, 서버 다운돼서 롤백 못한거 롤백
     //2. 주문이 완료된 재고 차감 로그 삭제 (의도한대로 및 정상적으로 끝난 케이스)
 
-    //1시간 주기가 적당한듯 (장애는 흔하지 않으니까)
+    //장애는 가끔 일어나니까, db 부하를 줄이기 위해 1시간 스케줄링 주기가 적당하다고 판단
     //fixedDelay는 앱 시작시에 바로 실행
-    //kafka ui에서 item-dlt의 재고 롤백 이벤트 수동으로 발행 안해도 됨
-    //이 스케줄러가 알아서 롤백하니까
-    //kafka ui는 dlt 모니터링 용으로만 쓰면 될듯
     @Scheduled(fixedDelay = 1000*60*60, zone = "Asia/Seoul")
     public void checkAndRollbackStock(){
-        //3시간동안 상품 서버 down 될 가능성 고려 (더 길게 장애나는건 수동으로 처리)
-        //토스뱅크는 지연되면 알람오게 하더라
+        //상품 ec2,rds 다운 시간을 최대 3시간으로 판단 (그 전에 장애나는건 수동으로 처리)
         LocalDateTime start = LocalDateTime.now().minusHours(3);
-        //최근 주문은 아직 진행 중이라, 재고 차감 단계 까지만 진행된 걸 수 있어서 제외
+        //주문 차감 단계 까지만 진행되고 있는 주문이 있을 수 있어서 10분 전까지로 설정
         LocalDateTime end = LocalDateTime.now().minusMinutes(10);
 
         //3시간 전 이후 row 조회 == 3시간 이내 row
